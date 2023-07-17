@@ -1,0 +1,15 @@
+docker build -f docker/Dockerfile -t my/ros:app .
+
+
+docker rmi my/ros:app 
+
+
+docker run -it --name my_ros --net=host --device=/dev/ttyUSB0 --rm my/ros:app
+
+
+ros2 run mavros mavros_node --ros-args --param fcu_url:=udp://:14550@
+
+
+docker-compose up
+
+docker container exec -it my_ros bash

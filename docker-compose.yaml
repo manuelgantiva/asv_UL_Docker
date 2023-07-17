@@ -1,0 +1,17 @@
+version: "3.9"
+services:
+  # Base image containing dependencies.
+  base_ros:
+    image: my/ros:app
+    # Interactive shell
+    stdin_open: true
+    tty: true
+    # Networking and IPC for ROS 2
+    network_mode: host
+    ipc: host
+    devices:
+      - /dev/ttyUSB0
+    # Needed to display graphical applications
+    volumes:
+      # Mount the source code
+      - ./bag_files:/bag_files:rw

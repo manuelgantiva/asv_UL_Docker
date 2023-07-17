@@ -1,0 +1,7 @@
+repositories:
+
+   # ASV_Loyola_US_low_level
+   ASV_Loyola_US_low_level:
+    type: git
+    url: https://github.com/manuelgantiva/ASV_Loyola_US_low_level.git
+    version: Comunication
