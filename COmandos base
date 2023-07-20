@@ -13,3 +13,9 @@ ros2 run mavros mavros_node --ros-args --param fcu_url:=udp://:14550@
 docker-compose up
 
 docker container exec -it my_ros bash
+
+
+ros2 run asv_control pwm_key 
+
+
+ros2 launch asv_bringup control_test.launch.py 
