@@ -63,6 +63,10 @@ WORKDIR /asv_ws
 COPY ./docker/entrypoint.sh /
 ENTRYPOINT [ "/entrypoint.sh" ]
 
+RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+RUN echo "source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash" >> ~/.bashrc
+RUN echo "source /usr/share/colcon_cd/function/colcon_cd.sh" >> ~/.bashrc
+RUN echo "source /asv_ws/install/setup.bash" >> ~/.bashrc
 
 # launch ros package
 CMD ["ros2", "launch", "asv_bringup", "send_data.launch.py"]
