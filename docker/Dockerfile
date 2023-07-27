@@ -5,6 +5,8 @@ FROM ros:humble-ros-base as base
 ENV ROS_DISTRO=${ROS_DISTRO}
 SHELL ["/bin/bash", "-c"]
 
+RUN apt-get update && apt-get install vim -y
+
 # ROS fundamentals
 RUN apt-get update && apt-get install -y \
         build-essential \
@@ -43,6 +45,7 @@ RUN mv ASV_Loyola_US_low_level src
 RUN rm dependencies.repos
 
 # Install mavros and other packages mavlink
+RUN apt-get update -y
 RUN sudo apt-get install -y ros-${ROS_DISTRO}-mavros ros-${ROS_DISTRO}-mavros-extras ros-${ROS_DISTRO}-mavros-msgs
 RUN wget https://raw.githubusercontent.com/mavlink/mavros/master/mavros/scripts/install_geographiclib_datasets.sh
 RUN sudo bash ./install_geographiclib_datasets.sh 
