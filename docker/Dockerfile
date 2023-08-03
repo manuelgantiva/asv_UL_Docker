@@ -52,9 +52,7 @@ RUN sudo bash ./install_geographiclib_datasets.sh
 
 # Build the base Colcon workspace, installing dependencies first.
 WORKDIR /asv_ws
-RUN chmod +x /asv_ws/src/asv_comunication/scripts/send_xbee.py
-RUN chmod +x /asv_ws/src/asv_comunication/scripts/receive_xbee.py  
-RUN chmod +x /asv_ws/src/asv_comunication/scripts/asv_xbee.py
+RUN chmod +x /asv_ws/src/asv_comunication/scripts/transceiver_xbee.py
 RUN chmod +x /asv_ws/src/asv_comunication/scripts/test_observer.py
 RUN source /opt/ros/${ROS_DISTRO}/setup.bash \
  && apt-get update -y \
@@ -72,4 +70,4 @@ RUN echo "source /usr/share/colcon_cd/function/colcon_cd.sh" >> ~/.bashrc
 RUN echo "source /asv_ws/install/setup.bash" >> ~/.bashrc
 
 # launch ros package
-CMD ["ros2", "launch", "asv_bringup", "send_data.launch.py"]
+#CMD ["ros2", "launch", "asv_bringup", "send_data.launch.py"]
