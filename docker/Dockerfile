@@ -50,6 +50,8 @@ RUN sudo apt-get install -y ros-${ROS_DISTRO}-mavros ros-${ROS_DISTRO}-mavros-ex
 RUN wget https://raw.githubusercontent.com/mavlink/mavros/master/mavros/scripts/install_geographiclib_datasets.sh
 RUN sudo bash ./install_geographiclib_datasets.sh 
 
+RUN sudo apt-get install -y ros-${ROS_DISTRO}-xacro
+
 # Build the base Colcon workspace, installing dependencies first.
 WORKDIR /asv_ws
 RUN chmod +x /asv_ws/src/asv_comunication/scripts/transceiver_xbee.py
@@ -69,5 +71,7 @@ RUN echo "source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash" >> 
 RUN echo "source /usr/share/colcon_cd/function/colcon_cd.sh" >> ~/.bashrc
 RUN echo "source /asv_ws/install/setup.bash" >> ~/.bashrc
 
+WORKDIR /bag_files
+
 # launch ros package
-#CMD ["ros2", "launch", "asv_bringup", "send_data.launch.py"]
+CMD ["ros2", "launch", "asv_bringup", "test_control_xbee.launch.py"]
