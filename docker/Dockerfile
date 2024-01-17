@@ -74,4 +74,4 @@ RUN echo "source /asv_ws/install/setup.bash" >> ~/.bashrc
 WORKDIR /bag_files
 
 # launch ros package
-CMD ["ros2", "launch", "asv_bringup", "test_control_xbee.launch.py", "my_id:=0"]
+CMD ["ros2", "launch", "asv_bringup", "control_test.launch.py", "my_id:=0"]
