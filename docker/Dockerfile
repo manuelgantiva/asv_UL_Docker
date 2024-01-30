@@ -59,7 +59,7 @@ RUN chmod +x /asv_ws/src/asv_comunication/scripts/test_observer.py
 RUN source /opt/ros/${ROS_DISTRO}/setup.bash \
  && apt-get update -y \
  && rosdep install --from-paths src --ignore-src --rosdistro ${ROS_DISTRO} -y \
- && colcon build --symlink-install
+ && colcon build --symlink-install --executor sequential
 
 # Set up the entrypoint
 WORKDIR /asv_ws
