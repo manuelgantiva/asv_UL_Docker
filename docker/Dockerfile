@@ -7,6 +7,41 @@ SHELL ["/bin/bash", "-c"]
 
 RUN apt-get update && apt-get install vim -y
 
+ARG GRB_VERSION=11.0.2
+ARG GRB_SHORT_VERSION=11.0
+ARG TARGETPLATFORM
+
+# Create a script to determine GRB_PLATFORM based on TARGETPLATFORM
+RUN if [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
+        echo "armlinux64" > /platform.txt; \
+      else \
+        echo "linux64" > /platform.txt; \
+    fi
+
+ENV GRB_PLATFORM=${GRB_PLATFORM}
+
+# install gurobi package and copy the files
+WORKDIR /opt
+
+RUN export GRB_PLATFORM=$(cat /platform.txt) && echo $GRB_PLATFORM \
+    &&apt-get update \
+    && apt-get install --no-install-recommends -y\
+       ca-certificates  \
+       wget \
+    && update-ca-certificates \
+    && wget -v https://packages.gurobi.com/${GRB_SHORT_VERSION}/gurobi${GRB_VERSION}_$GRB_PLATFORM.tar.gz \
+    && tar -xvf gurobi${GRB_VERSION}_$GRB_PLATFORM.tar.gz  \
+    && rm -f gurobi${GRB_VERSION}_$GRB_PLATFORM.tar.gz \
+    && rm -rf gurobi/$GRB_PLATFORM/docs 
+
+WORKDIR /opt/gurobi1102
+
+ENV GUROBI_HOME /opt/gurobi1102/linux64
+ENV PATH $PATH:$GUROBI_HOME/bin
+ENV LD_LIBRARY_PATH $GUROBI_HOME/lib
+
+COPY gurobi.lic /opt/gurobi1102/linux64/
+
 # ROS fundamentals
 RUN apt-get update && apt-get install -y \
         build-essential \
@@ -70,6 +105,11 @@ RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
 RUN echo "source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash" >> ~/.bashrc
 RUN echo "source /usr/share/colcon_cd/function/colcon_cd.sh" >> ~/.bashrc
 RUN echo "source /asv_ws/install/setup.bash" >> ~/.bashrc
+
+RUN echo "export GUROBI_HOME=/opt/gurobi1102/linux64" >> ~/.bashrc
+RUN echo "export PATH=$GUROBI_HOME/bin:$PATH" >> ~/.bashrc
+RUN echo "export LD_LIBRARY_PATH=$GUROBI_HOME/lib:$LD_LIBRARY_PATH" >> ~/.bashrc
+RUN echo "export GRB_LICENSE_FILE=$GUROBI_HOME/gurobi.lic" >> ~/.bashrc
 
 WORKDIR /bag_files
 
