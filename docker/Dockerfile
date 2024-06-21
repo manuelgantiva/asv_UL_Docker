@@ -10,11 +10,20 @@ RUN apt-get update && apt-get install vim -y
 ARG GRB_VERSION=11.0.2
 ARG GRB_SHORT_VERSION=11.0
 ARG TARGETPLATFORM
+ARG TARGETARCH
 
-# Create a script to determine GRB_PLATFORM based on TARGETPLATFORM
+# Añade una línea para imprimir el valor de TARGETPLATFORM
+RUN echo "TARGETPLATFORM is $TARGETPLATFORM"
+
+# Añade una línea para imprimir el valor de TARGETARCH
+RUN echo "TARGETARCH is $TARGETARCH"
+
+# Condicional para escribir en /platform.txt según la arquitectura
 RUN if [ "$TARGETPLATFORM" = "linux/arm64" ]; then \
         echo "armlinux64" > /platform.txt; \
-      else \
+    elif [ "$TARGETARCH" = "arm64" ]; then \
+        echo "armlinux64" > /platform.txt; \
+    else \
         echo "linux64" > /platform.txt; \
     fi
 
@@ -32,15 +41,18 @@ RUN export GRB_PLATFORM=$(cat /platform.txt) && echo $GRB_PLATFORM \
     && wget -v https://packages.gurobi.com/${GRB_SHORT_VERSION}/gurobi${GRB_VERSION}_$GRB_PLATFORM.tar.gz \
     && tar -xvf gurobi${GRB_VERSION}_$GRB_PLATFORM.tar.gz  \
     && rm -f gurobi${GRB_VERSION}_$GRB_PLATFORM.tar.gz \
-    && rm -rf gurobi/$GRB_PLATFORM/docs 
+    && mv -f gurobi* gurobi \
+    && rm -rf gurobi/$GRB_PLATFORM/docs \
+    && mv -f gurobi/$GRB_PLATFORM*  gurobi/linux
+# After the file renaming, a clean image is built
 
-WORKDIR /opt/gurobi1102
+WORKDIR /opt/gurobi
 
-ENV GUROBI_HOME /opt/gurobi1102/linux64
+ENV GUROBI_HOME /opt/gurobi/linux
 ENV PATH $PATH:$GUROBI_HOME/bin
 ENV LD_LIBRARY_PATH $GUROBI_HOME/lib
 
-COPY gurobi.lic /opt/gurobi1102/linux64/
+COPY gurobi.lic /opt/gurobi/linux/
 
 # ROS fundamentals
 RUN apt-get update && apt-get install -y \
@@ -106,7 +118,7 @@ RUN echo "source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash" >> 
 RUN echo "source /usr/share/colcon_cd/function/colcon_cd.sh" >> ~/.bashrc
 RUN echo "source /asv_ws/install/setup.bash" >> ~/.bashrc
 
-RUN echo "export GUROBI_HOME=/opt/gurobi1102/linux64" >> ~/.bashrc
+RUN echo "export GUROBI_HOME=/opt/gurobi/linux" >> ~/.bashrc
 RUN echo "export PATH=$GUROBI_HOME/bin:$PATH" >> ~/.bashrc
 RUN echo "export LD_LIBRARY_PATH=$GUROBI_HOME/lib:$LD_LIBRARY_PATH" >> ~/.bashrc
 RUN echo "export GRB_LICENSE_FILE=$GUROBI_HOME/gurobi.lic" >> ~/.bashrc
