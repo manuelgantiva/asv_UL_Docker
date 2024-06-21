@@ -119,8 +119,8 @@ RUN echo "source /usr/share/colcon_cd/function/colcon_cd.sh" >> ~/.bashrc
 RUN echo "source /asv_ws/install/setup.bash" >> ~/.bashrc
 
 RUN echo "export GUROBI_HOME=/opt/gurobi/linux" >> ~/.bashrc
-RUN echo "export PATH=$GUROBI_HOME/bin:$PATH" >> ~/.bashrc
-RUN echo "export LD_LIBRARY_PATH=$GUROBI_HOME/lib:$LD_LIBRARY_PATH" >> ~/.bashrc
+RUN echo "export PATH=\$GUROBI_HOME/bin:\$PATH" >> ~/.bashrc
+RUN echo "export LD_LIBRARY_PATH=\$GUROBI_HOME/lib:\$LD_LIBRARY_PATH" >> ~/.bashrc
 RUN echo "export GRB_LICENSE_FILE=$GUROBI_HOME/gurobi.lic" >> ~/.bashrc
 
 WORKDIR /bag_files
