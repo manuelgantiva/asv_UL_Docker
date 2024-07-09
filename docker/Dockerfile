@@ -52,7 +52,7 @@ ENV GUROBI_HOME /opt/gurobi/linux
 ENV PATH $PATH:$GUROBI_HOME/bin
 ENV LD_LIBRARY_PATH $GUROBI_HOME/lib
 
-COPY gurobi.lic /opt/gurobi/linux/
+COPY gurobi.lic /opt/gurobi/
 
 # ROS fundamentals
 RUN apt-get update && apt-get install -y \
@@ -108,11 +108,6 @@ RUN source /opt/ros/${ROS_DISTRO}/setup.bash \
  && rosdep install --from-paths src --ignore-src --rosdistro ${ROS_DISTRO} -y \
  && colcon build --symlink-install --executor sequential
 
-# Set up the entrypoint
-WORKDIR /asv_ws
-COPY ./docker/entrypoint.sh /
-ENTRYPOINT [ "/entrypoint.sh" ]
-
 RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
 RUN echo "source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash" >> ~/.bashrc
 RUN echo "source /usr/share/colcon_cd/function/colcon_cd.sh" >> ~/.bashrc
@@ -121,7 +116,12 @@ RUN echo "source /asv_ws/install/setup.bash" >> ~/.bashrc
 RUN echo "export GUROBI_HOME=/opt/gurobi/linux" >> ~/.bashrc
 RUN echo "export PATH=\$GUROBI_HOME/bin:\$PATH" >> ~/.bashrc
 RUN echo "export LD_LIBRARY_PATH=\$GUROBI_HOME/lib:\$LD_LIBRARY_PATH" >> ~/.bashrc
-RUN echo "export GRB_LICENSE_FILE=$GUROBI_HOME/gurobi.lic" >> ~/.bashrc
+RUN echo "export GRB_LICENSE_FILE=/opt/gurobi/gurobi.lic" >> ~/.bashrc
+
+# Set up the entrypoint
+WORKDIR /asv_ws
+COPY ./docker/entrypoint.sh /
+ENTRYPOINT [ "/entrypoint.sh" ]
 
 WORKDIR /bag_files
 
