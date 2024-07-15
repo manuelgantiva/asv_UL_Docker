@@ -68,12 +68,6 @@ RUN apt-get update && apt-get install -y \
 && rm -rf /var/lib/apt/lists/* \
 && apt-get clean
 
-# install ros package
-RUN apt-get update && apt-get install -y \
-      ros-${ROS_DISTRO}-demo-nodes-cpp \
-      ros-${ROS_DISTRO}-demo-nodes-py && \
-    rm -rf /var/lib/apt/lists/*
-
 # install libraries pip
 RUN pip install digi-xbee
 
@@ -81,6 +75,19 @@ RUN pip install digi-xbee
 RUN apt-get update && apt-get install -y --no-install-recommends \
  ros-${ROS_DISTRO}-rmw-cyclonedds-cpp
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+
+# Install mavros and other packages mavlink
+RUN apt-get update -y
+RUN sudo apt-get install -y ros-${ROS_DISTRO}-mavros ros-${ROS_DISTRO}-mavros-extras ros-${ROS_DISTRO}-mavros-msgs
+RUN wget https://raw.githubusercontent.com/mavlink/mavros/master/mavros/scripts/install_geographiclib_datasets.sh
+RUN sudo bash ./install_geographiclib_datasets.sh 
+
+RUN sudo apt-get install -y ros-${ROS_DISTRO}-xacro
+
+#############################
+# Compilation Stage #
+#############################
+FROM base as build
 
 # Create Colcon workspace with external dependencies
 RUN mkdir -p /bag_files
@@ -90,14 +97,6 @@ COPY ./dependencies.repos .
 RUN vcs import < dependencies.repos
 RUN mv ASV_Loyola_US_low_level src
 RUN rm dependencies.repos
-
-# Install mavros and other packages mavlink
-RUN apt-get update -y
-RUN sudo apt-get install -y ros-${ROS_DISTRO}-mavros ros-${ROS_DISTRO}-mavros-extras ros-${ROS_DISTRO}-mavros-msgs
-RUN wget https://raw.githubusercontent.com/mavlink/mavros/master/mavros/scripts/install_geographiclib_datasets.sh
-RUN sudo bash ./install_geographiclib_datasets.sh 
-
-RUN sudo apt-get install -y ros-${ROS_DISTRO}-xacro
 
 # Build the base Colcon workspace, installing dependencies first.
 WORKDIR /asv_ws

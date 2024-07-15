@@ -26,7 +26,7 @@ run_gurobi() {
       break
     else
       echo "gurobi_cl failed, retrying in 30 seconds..."
-      sleep 30
+      sleep 10
     fi
   done
 }

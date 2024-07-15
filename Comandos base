@@ -1,7 +1,10 @@
 docker build -f docker/Dockerfile -t my/ros:app .
 
-docker builder build --platform linux/arm64 --build-arg TARGETPLATFORM=linux/arm64 --build-arg TARGETARCH=arm64 -f docker/Dockerfile -t my/ros:app .
-docker builder build --platform linux --build-arg TARGETPLATFORM=linux --build-arg TARGETARCH=x64 -f docker/Dockerfile -t my/ros:app .
+docker builder build --target build --platform linux/arm64 --build-arg TARGETPLATFORM=linux/arm64 --build-arg TARGETARCH=arm64 -f docker/Dockerfile -t my/ros:base .
+docker builder build --target build --platform linux --build-arg TARGETPLATFORM=linux --build-arg TARGETARCH=x64 -f docker/Dockerfile -t my/ros:app .
+
+docker builder build --target base --platform linux/arm64 --build-arg TARGETPLATFORM=linux/arm64 --build-arg TARGETARCH=arm64 -f docker/Dockerfile -t my/ros:base .
+docker builder build --target base --platform linux --build-arg TARGETPLATFORM=linux --build-arg TARGETARCH=x64 -f docker/Dockerfile -t my/ros:app .
 
 docker rmi my/ros:app 
 
