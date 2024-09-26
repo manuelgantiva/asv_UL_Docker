@@ -28,3 +28,11 @@ ros2 launch asv_bringup control_test.launch.py
 
 docker run -it -v ~/images/Docker_asv/bag_files:/bag_files:rw --name my_ros --net=host --rm my/ros:app2 bash
 
+
+Comando para Dispositivos ttyUSB
+
+cd /docker
+sudo chmod 777 bind_device.sh
+sudo sh bind_device.sh
+ll /dev/xbee_usb
+ll /dev/imu_usb
