@@ -15,9 +15,9 @@ Este repositorio contiene un Dockerfile y los scripts necesarios para la desplie
 ## Tabla de Contenidos
 
 1. [Requisitos](#requisitos)
-2. [Prepara tu imagen](#Prepara-tu-imagen)
-3. [Construcción de tu imagen](#Construcción-de-tu-imagen)
-4. [Ejecuta tu contenedor](#Ejecuta-tu-contenedor)
+2. [Prepara tu imagen](#prepara-tu-imagen)
+3. [Construcción de tu imagen](#construcción-de-tu-imagen)
+4. [Ejecuta tu contenedor](#ejecuta-tu-contenedor)
 
 ## Requisitos
 
@@ -27,18 +27,16 @@ Antes de comenzar, asegúrate de tener los siguientes requisitos instalados en t
 - [Docker Compose](https://docs.docker.com/compose/install/)
 - Archivo de licesnsia de Guribi Academic [WLS License]
 
-## Descargar y Preparar el Proyecto
-
 En lugar de instalar ROS y otras dependencias directamente en su máquina host, puede usar un contenedor Docker para crear el entorno que necesita para construir y ejecutar los algoritmos.
 
-### 1. Clona el repositorio
+## Clona el repositorio
 
 ```bash
 mkdir asv_docker
 cd asv_docker
 git clone https://github.com/manuelgantiva/asv_UL_Docker.git .
 ```
-### 2. Prepara tu imagen
+## Prepara tu imagen
 
 A continuación se describen los pasos para preparar su imagen Docker, dependiendo si desea utilizarla para ejecutar un `.launch` específico o si desea crear una imagen en la que compilar sus archivos. Adicionalmente, se especifica la configuración de los periféricos utilizados en el Yellofish (IMU y Xbee).
 
@@ -51,7 +49,7 @@ sudo sh bind_device.sh
 cd ..
 ```
 
-#### 2.1. Despliegue
+### 2.1. Despliegue
 
 En esta sección se describen los pasos para preparar una prueba de ejecución. Primero, defina el `.launch` y el dron que desea ejecutar al iniciar su Docker. Esto deberá ser modificado en la última línea del archivo [Dockerfile](docker/Dockerfile), previo a la construcción de la imagen:
 
@@ -76,7 +74,7 @@ echo "Enable port Usb imu"
 
 Con esto, su imagen Docker estará lista para ser construida.
 
-#### 2.2. Desarrollo
+### 2.2. Desarrollo
 
 Esta sección tiene algunas recomendaciones para desarrollar mediante esta imagen Docker. Sin embargo, se aclara que esta imagen no fue diseñada con este fin, y por lo tanto deberán añadirse los volúmenes necesarios para que los cambios que realicen en su contenedor no se pierdan al cerrarlo.
 
@@ -112,7 +110,7 @@ echo "Enable port Usb imu"
 
 Con esto, su imagen Docker estará lista para ser construida.
 
-### 3. Construcción de tu imagen
+## Construcción de tu imagen
 
 Esta sección incluye los pasos para construir su imagen a partir de los documentos previamente configurados y modificados. Es importante que, si modifica alguno de los archivos previamente mencionados, deberá volver a construir su imagen. Dado que esta imagen utiliza Gurobi, es necesario primero identificar la plataforma y arquitectura del host. Además, asegúrese de que el archivo `gurobi.lic` se encuentre en la carpeta `asv_docker`.
 
@@ -129,7 +127,7 @@ docker builder build --target build --platform linux --build-arg TARGETPLATFORM=
 
 Este proceso tardará varios minutos.
 
-### 4. Ejecuta tu contenedor
+## Ejecuta tu contenedor
 
 Una vez que su imagen esté construida, podrá ejecutar su contenedor Docker mediante comandos de línea. Sin embargo, para facilitar la configuración y despliegue del contenedor, se ha agregado el archivo [docker-compose](docker-compose.yaml), que permitirá desplegar su contenedor y toda su configuración de forma más sencilla.
 
