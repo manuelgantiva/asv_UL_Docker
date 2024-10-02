@@ -3,15 +3,14 @@ services:
   # Base image containing dependencies.
   base_ros:
     image: my/ros:app
+    container_name: asv_docker  # Define el nombre del contenedor
     # Interactive shell
     stdin_open: true
     tty: true
     # Networking and IPC for ROS 2
     network_mode: host
     ipc: host
-    devices:
-      - /dev/xbee_usb
-      - /dev/imu_usb
+
     # Needed to display graphical applications
     volumes:
       # Mount the source code
