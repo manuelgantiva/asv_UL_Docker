@@ -28,5 +28,38 @@ Normalmente, la línea de comando de sitúa en la carpeta bag_files por defecto,
 ls
 ```
 
-La imagen que ha generado no incluye ningún editor de texto, pero, por ejemplo, puede utilizar (Visual Studio Code)[https://code.visualstudio.com/docs/containers/overview] para editar ficheros dentro de contenedores.
-Instale la extensión docker. Abra el fichero a través de la pestaña ![Docker](https://img.shields.io/badge/:badgeContent?logo=docker). Los cambios que realice aquí también actualizarán a los ficheros que estén en su host.
+Verifique que los paquetes del ASV se han instalado correctamente:
+
+```bash
+ros2 pkg list
+```
+
+o bien
+
+```bash
+ros2 pkg executables
+```
+
+La imagen que ha generado no incluye ningún editor de texto, pero, por ejemplo, puede utilizar [Visual Studio Code](https://code.visualstudio.com/docs/containers/overview) para editar ficheros dentro de contenedores.
+Instale la extensión docker. Abra el fichero a través de la pestaña ![Docker](https://img.shields.io/badge/-docker?logo=docker&color=3e3e3e) que se encuentra en el barra izquierda.
+
+![](ejemplo_docker_vscode.png)
+
+Además de la carpeta bag_files, en el ejemplo de la figura, se ha agregado la carpeta asv_dev_ws que contiene un directorio preparado para generar un paquete válido para ROS2. Puede crear y modificar cualquier fichero dentro de las carpetas del volumen. Los cambios que realice dentro del contenedor también actualizarán a los ficheros que estén en su host.
+
+## Instalación y utilización de paquetes en ROS2
+
+Si ha creado un paquete en ros, puede dirigirse a la carpeta principal e instalar el paquete utilizando
+
+```bash
+colcon build
+source install/setup.sh
+```
+
+Luego ejecute el módulo:
+
+```bash
+ros2 run <pkg-name> <executable-name>
+```
+
+Para más información, dirígase al [Tutorial de creación de paquetes](https://docs.ros.org/en/humble/Tutorials/Beginner-Client-Libraries/Creating-Your-First-ROS2-Package.html)
