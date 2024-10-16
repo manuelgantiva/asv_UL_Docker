@@ -102,7 +102,7 @@ volumes:
 
 [//]: # (Sin embargo, si usted desea actualizar la rama, deberá actualizar el repositorio y reconstruir la imagen, o crear un volumen enlazado a la carpeta `src`, lo cual le permitirá modificar los archivos sin perderlos al cerrar el contenedor.)
 
-Con esto, podrá modificar los archivos localmente en su host y luego compilarlos en su Docker. Al terminar de crear su imagen, puede acceder al [Tutorial de Desarrollo](dev_quick_start) para desarrollar sus propios nodos. 
+Con esto, podrá modificar los archivos localmente en su host y luego compilarlos en su Docker. Al terminar de crear su imagen, puede acceder al [Tutorial de Desarrollo](dev-quick-start.md) para desarrollar sus propios nodos. 
 
 Por último, deberá definir los periféricos a los que tendrá conexión su contenedor Docker. Para desarrollo en ordernador, deberá comentar las siguientes líneas del archivo [Entrypoint](docker/entrypoint.sh)
 
