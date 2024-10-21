@@ -96,7 +96,7 @@ Para el desarrollo, necesita incluir un [volumen](https://docs.docker.com/engine
 
 ```docker-compose
 volumes:
-      - /<carpeta-con-archivos>:/asv_ws/src:rw
+      - /<carpeta-con-archivos>:/<carpeta-destino>:rw
       - ./bag_files:/bag_files:rw
 ```
 
