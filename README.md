@@ -25,7 +25,7 @@ Antes de comenzar, asegúrate de tener los siguientes requisitos instalados en t
 
 - [Docker](https://www.docker.com/get-started)
 - [Docker Compose](https://docs.docker.com/compose/install/)
-- Archivo de licesnsia de Guribi Academic [WLS License]
+- Archivo de licesnsia de Guribi Academic [WLS License] (Utilizará el fichero.lic más adelante)
 
 En lugar de instalar ROS y otras dependencias directamente en su máquina host, puede usar un contenedor Docker para crear el entorno que necesita para construir y ejecutar los algoritmos.
 
@@ -43,7 +43,7 @@ A continuación se describen los pasos para preparar su imagen Docker, dependien
 Con estos comandos se definirá una regla para identificar los módulos zigbee e imu al conectarlos, lo cual facilitará su conexión con el contenedor Docker. En caso de que no piense utilizarlos (desarrollo exclusivo en ordenador o solo lectura de rosbags), podrá omitir este paso:
 
 ```bash
-cd /docker
+cd docker
 sudo chmod 777 bind_device.sh
 sudo sh bind_device.sh
 cd ..
