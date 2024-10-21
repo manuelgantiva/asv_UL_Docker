@@ -92,7 +92,7 @@ Ahora deberá definir (o verificar) la rama del repositorio de ROS2 que utilizar
 version: hito3
 ```
 
-Para el desarrollo, necesita incluir un (volumen)[https://docs.docker.com/engine/storage/volumes/] que permita incluir código de su ordenador dentro de la imagen a utilizar. Debe modificar el archivo [docker-compose](docker-compose.yaml) y agregar la carpeta que desee de la siguiente forma:
+Para el desarrollo, necesita incluir un [volumen](https://docs.docker.com/engine/storage/volumes/) que permita incluir código de su ordenador dentro de la imagen a utilizar. Debe modificar el archivo [docker-compose](docker-compose.yaml) y agregar la carpeta que desee de la siguiente forma:
 
 ```docker-compose
 volumes:
