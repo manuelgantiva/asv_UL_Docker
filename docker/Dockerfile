@@ -1,7 +1,7 @@
 #############################
 # Base Image for Asv Loyola #
 #############################
-FROM ros:humble-ros-base as base
+FROM osrf/ros:humble-desktop as base
 ENV ROS_DISTRO=${ROS_DISTRO}
 SHELL ["/bin/bash", "-c"]
 
@@ -82,7 +82,8 @@ RUN sudo apt-get install -y ros-${ROS_DISTRO}-mavros ros-${ROS_DISTRO}-mavros-ex
 RUN wget https://raw.githubusercontent.com/mavlink/mavros/master/mavros/scripts/install_geographiclib_datasets.sh
 RUN sudo bash ./install_geographiclib_datasets.sh 
 
-RUN sudo apt-get install -y ros-${ROS_DISTRO}-xacro
+RUN sudo apt-get install -y ros-${ROS_DISTRO}-xacro 
+
 
 #############################
 # Compilation Stage #
@@ -104,13 +105,13 @@ RUN chmod +x /asv_ws/src/asv_comunication/scripts/transceiver_xbee.py
 RUN chmod +x /asv_ws/src/asv_comunication/scripts/test_observer.py
 RUN source /opt/ros/${ROS_DISTRO}/setup.bash \
  && apt-get update -y \
- && rosdep install --from-paths src --ignore-src --rosdistro ${ROS_DISTRO} -y \
- && colcon build --symlink-install --executor sequential
+ && rosdep install --from-paths src --ignore-src --rosdistro ${ROS_DISTRO} -y 
+# && colcon build --symlink-install --executor sequential
 
 RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
 RUN echo "source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash" >> ~/.bashrc
 RUN echo "source /usr/share/colcon_cd/function/colcon_cd.sh" >> ~/.bashrc
-RUN echo "source /asv_ws/install/setup.bash" >> ~/.bashrc
+#RUN echo "source /asv_ws/install/setup.bash" >> ~/.bashrc
 
 RUN echo "export GUROBI_HOME=/opt/gurobi/linux" >> ~/.bashrc
 RUN echo "export PATH=\$GUROBI_HOME/bin:\$PATH" >> ~/.bashrc
@@ -125,4 +126,7 @@ ENTRYPOINT [ "/entrypoint.sh" ]
 WORKDIR /bag_files
 
 # launch ros package
-CMD ["ros2", "launch", "asv_bringup", "control_test.launch.py", "my_id:=4"]
+#CMD ["ros2", "launch", "asv_bringup", "control_test.launch.py", "my_id:=4"]
+
+# CMD ["ros2", "launch", "asv_bringup", "tu_launch.launch.py", "my_id:=4"]
+CMD ["bash"]

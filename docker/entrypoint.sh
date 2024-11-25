@@ -13,10 +13,10 @@ then
 fi
 
 source ~/.bashrc
-sudo chmod a+rw /dev/xbee_usb
-echo "Enable port Usb xbee"
-sudo chmod a+rw /dev/imu_usb
-echo "Enable port Usb imu"
+#sudo chmod a+rw /dev/xbee_usb
+#echo "Enable port Usb xbee"
+#sudo chmod a+rw /dev/imu_usb
+#echo "Enable port Usb imu"
 
 # Run gurobi_cl and check its status
 # Function to run gurobi_cl and retry if it fails

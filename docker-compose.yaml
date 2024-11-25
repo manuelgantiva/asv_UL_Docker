@@ -1,4 +1,3 @@
-version: "3.3"
 services:
   # Base image containing dependencies.
   base_ros:
@@ -7,13 +6,19 @@ services:
     # Interactive shell
     stdin_open: true
     tty: true
+    environment:
+      - "DISPLAY"
+      - "QT_X11_NO_MITSHM=1"
     # Networking and IPC for ROS 2
     network_mode: host
     ipc: host
-    devices:
-      - /dev/xbee_usb
-      - /dev/imu_usb
+   # devices:
+      #- /dev/xbee_usb
+      #- /dev/imu_usb
     # Needed to display graphical applications
     volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ~/GITHUB/ASV_Loyola_US_low_level/asv_control:/asv_dev_ws/:rw
+      - ~/GITHUB/ASV_Loyola_US_low_level/asv_low/src:/ASV_ws/src:rw
       # Mount the source code
       - ./bag_files:/bag_files:rw
