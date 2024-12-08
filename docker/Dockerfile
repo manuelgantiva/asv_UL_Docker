@@ -101,7 +101,8 @@ RUN rm dependencies.repos
 # Build the base Colcon workspace, installing dependencies first.
 WORKDIR /asv_ws
 RUN chmod +x /asv_ws/src/asv_comunication/scripts/transceiver_xbee.py
-RUN chmod +x /asv_ws/src/asv_comunication/scripts/test_observer.py
+RUN chmod +x /asv_ws/src/asv_comunication/scripts/xbee_master.py
+RUN chmod +x /asv_ws/src/asv_comunication/scripts/xbee_slave.py
 RUN source /opt/ros/${ROS_DISTRO}/setup.bash \
  && apt-get update -y \
  && rosdep install --from-paths src --ignore-src --rosdistro ${ROS_DISTRO} -y \
