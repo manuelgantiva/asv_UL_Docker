@@ -1,46 +1,56 @@
-### Description
-
-- This code is being developed in ROS2 Humble
-- It is part of the projects developed by the research group Optimization and Control of Distributed Systems
-- Working with Navio2, jetson xavier nx and Ardupilot
 
 # ASV_UL_Docker
 
+### Description
+
+- This code is being developed using ROS2 Humble  
+- Part of the projects developed by the Optimization and Control of Distributed Systems research group
+- Compatible with Navio2, Navigator, and other Ardupilot-based systems that support MAVLink
+- Designed to work with Jetson Xavier NX.
+- Includes a Docker image for deploying control algorithms in experimental validation
+
+
 ![](https://www.uloyola.es/templates/v6/images/isologo_loyola_principal.svg)
 
-# Docker de Deployment
+This repository contains a Dockerfile and the necessary scripts for the automated deployment of an ASV application. The Docker container streamlines the deployment process, ensuring efficient and consistent implementation across different environments.
 
-Este repositorio contiene un Dockerfile y los scripts necesarios para la despliegue automatizado de una aplicación ASV. El contenedor Docker facilita la implementación de la aplicación en diversos entornos de manera eficiente y consistente.
+## Table of Contents
 
-## Tabla de Contenidos
+1. [Requirements](#requirements)
+   - [Deployment](#deployment)  
+   - [Development](#development)
+3. [Prepare the Image](#prepare-the-image)  
+4. [Build the Image](#build-the-image)  
+5. [Run Your Container](#run-your-container)
 
-1. [Requisitos](#requisitos)
-2. [Prepare la imagen](#prepare-la-imagen)
-3. [Construcción de tu imagen](#construcción-de-la-imagen)
-4. [Ejecuta tu contenedor](#ejecuta-tu-contenedor)
+## Requirements
 
-## Requisitos
+Before getting started, make sure the following are installed on your system:
 
-Antes de comenzar, asegúrate de tener los siguientes requisitos instalados en tu máquina:
+- [Docker](https://www.docker.com/get-started)  
+- [Docker Compose](https://docs.docker.com/compose/install/)  
 
-- [Docker](https://www.docker.com/get-started)
-- [Docker Compose](https://docs.docker.com/compose/install/)
-- Archivo de licesnsia de Guribi Academic [WLS License]
+Instead of installing ROS and other dependencies directly on your host machine, you can use a Docker container to create the environment needed to build and run the control algorithms.
 
-En lugar de instalar ROS y otras dependencias directamente en su máquina host, puede usar un contenedor Docker para crear el entorno que necesita para construir y ejecutar los algoritmos.
+## Clone the Repository
 
-## Clona el repositorio
+To get started, first create a working directory and clone the repository into it. Make sure to use the `beckermn` branch, which contains the deployment setup.
+
+Open a terminal and run:
 
 ```bash
 mkdir asv_docker
 cd asv_docker
-git clone https://github.com/manuelgantiva/asv_UL_Docker.git .
+git clone -b beckermn https://github.com/manuelgantiva/asv_UL_Docker.git .
 ```
-## Prepare la imagen
 
-A continuación se describen los pasos para preparar su imagen Docker, dependiendo si desea utilizarla para ejecutar un `.launch` específico o si desea crear una imagen en la que compilar sus archivos. Adicionalmente, se especifica la configuración de los periféricos utilizados en el Yellofish (IMU y Xbee).
+The `.` at the end of the `git clone` command places the contents of the repository directly into the current folder, avoiding the creation of an extra subdirectory.
 
-Con estos comandos se definirá una regla para identificar los módulos zigbee e imu al conectarlos, lo cual facilitará su conexión con el contenedor Docker. En caso de que no piense utilizarlos (desarrollo exclusivo en ordenador o solo lectura de rosbags), podrá omitir este paso:
+## Prepare the Image
+
+The following steps explain how to prepare your Docker image, depending on whether you want to use it to run a specific `.launch` file or to compile and develop your own code. Additionally, it includes the setup of the hardware peripherals used in the Yellofish platform (IMU and XBee).
+
+The commands below will configure udev rules to identify the ZigBee and IMU modules when connected. This makes it easier to link them to the Docker container. If you don’t plan to use these devices (e.g., desktop-only development or reading rosbag files), you can skip this step:
 
 ```bash
 cd /docker
@@ -49,23 +59,23 @@ sudo sh bind_device.sh
 cd ..
 ```
 
-Si desee desarrollar código, dirígase al paso [Desarrollo](#desarrollo)
+If you plan to develop code inside the container, go to the [Development](#desarrollo) section.
 
-### Despliegue
+### Deployment
 
-En esta sección se describen los pasos para preparar una prueba de ejecución. Primero, defina el `.launch` y el dron que desea ejecutar al iniciar su Docker. Esto deberá ser modificado en la última línea del archivo [Dockerfile](docker/Dockerfile), previo a la construcción de la imagen:
-
-```docker
-CMD ["ros2", "launch", "asv_bringup", "tu_launch.launch.py", "my_id:=4"]
-```
-
-Ahora deberá definir la rama del repositorio de ROS2 que utilizará en su contenedor Docker. Esta debe ser especificada en la última línea del archivo [Dependencies](dependencies.REPOS)
+This section describes the steps required to prepare a test run. First, define the `.launch` file and the vehicle ID you want to execute when the Docker container starts. This must be specified in the last line of the [Dockerfile](docker/Dockerfile) before building the image:
 
 ```docker
-version: hito3
+CMD ["ros2", "launch", "asv_bringup", "your_launch.launch.py", "my_id:=4"]
 ```
 
-Por último, deberá definir los periféricos a los que tendrá conexión su contenedor Docker. Esto lo podrá hacer comentando o eliminando las siguientes líneas del archivo [Entrypoint](docker/entrypoint.sh)
+Next, define the branch of the ROS2 repository that the container will use. This must be set in the last line of the [dependencies](dependencies.REPOS) file:
+
+```docker
+version: beckermn
+```
+
+Finally, configure which peripherals the Docker container should access. You can do this by commenting out or removing the following lines in the [Entrypoint](docker/entrypoint.sh) file if you are not using these devices:
 
 ```sh
 sudo chmod a+rw /dev/xbee_usb
@@ -74,25 +84,26 @@ sudo chmod a+rw /dev/imu_usb
 echo "Enable port Usb imu"
 ```
 
-Con esto, su imagen Docker estará lista para ser construida.
+Once these settings are in place, your Docker image is ready to be built.
 
-### Desarrollo
+### Development
 
-Esta sección tiene algunas recomendaciones para desarrollar mediante esta imagen Docker. Sin embargo, se aclara que esta imagen no fue diseñada con este fin, y por lo tanto deberán añadirse los volúmenes necesarios para que los cambios que realicen en su contenedor no se pierdan al cerrarlo.
+This section provides some recommendations for using the Docker image for development purposes. Note, however, that this image was not originally designed for development, so you will need to manually mount volumes to avoid losing changes when the container is closed.
 
-Primero, deberá cambiar la última línea del archivo [Dockerfile](docker/Dockerfile) previo a la construcción de la imagen. Esto hará que al iniciar su contenedor, este no ejecute ningún `.launch`, y usted lo pueda utilizar para compilar o modificar los archivos:
+First, modify the last line of the [Dockerfile](docker/Dockerfile) before building the image. This change prevents the container from launching any `.launch` files automatically, allowing you to compile or edit files manually:
 
 ```docker
-# CMD ["ros2", "launch", "asv_bringup", "tu_launch.launch.py", "my_id:=4"]
+# CMD ["ros2", "launch", "asv_bringup", "your_launch.launch.py", "my_id:=4"]
 CMD ["bash"]
 ```
-Ahora deberá definir (o verificar) la rama del repositorio de ROS2 que utilizará en su contenedor Docker. Esta debe ser especificada en la última línea del archivo [Dependencies](dependencies.REPOS), lo cual descargará el último commit de dicha rama:
+
+Next, define (or verify) the branch of the ROS2 repository that the container will use. This is set in the last line of the dependencies.REPOS file, which pulls the latest commit from that branch:
 
 ```docker
-version: hito3
+version: beckermn
 ```
 
-Para el desarrollo, necesita incluir un (volumen)[https://docs.docker.com/engine/storage/volumes/] que permita incluir código de su ordenador dentro de la imagen a utilizar. Debe modificar el archivo [docker-compose](docker-compose.yaml) y agregar la carpeta que desee de la siguiente forma:
+To include your code from the host system into the Docker container, you need to configure a [volume](https://docs.docker.com/engine/storage/volumes/). Edit the [docker-compose](docker-compose.yaml) file and add the desired folders like this:
 
 ```docker-compose
 volumes:
@@ -100,11 +111,9 @@ volumes:
       - ./bag_files:/bag_files:rw
 ```
 
-[//]: # (Sin embargo, si usted desea actualizar la rama, deberá actualizar el repositorio y reconstruir la imagen, o crear un volumen enlazado a la carpeta `src`, lo cual le permitirá modificar los archivos sin perderlos al cerrar el contenedor.)
+This allows you to edit files locally on your host machine and compile them inside the container without losing changes.
 
-Con esto, podrá modificar los archivos localmente en su host y luego compilarlos en su Docker. Al terminar de crear su imagen, puede acceder al [Tutorial de Desarrollo](dev_quick_start) para desarrollar sus propios nodos. 
-
-Por último, deberá definir los periféricos a los que tendrá conexión su contenedor Docker. Para desarrollo en ordernador, deberá comentar las siguientes líneas del archivo [Entrypoint](docker/entrypoint.sh)
+Finally, for desktop development, you should comment out the hardware-specific commands in the [Entrypoint](docker/entrypoint.sh) file to avoid issues related to missing devices:
 
 ```sh
 sudo chmod a+rw /dev/xbee_usb
@@ -112,51 +121,51 @@ echo "Enable port Usb xbee"
 sudo chmod a+rw /dev/imu_usb
 echo "Enable port Usb imu"
 ```
+With these modifications, your Docker image will be ready for development workflows.
 
-Con esto, su imagen Docker estará lista para ser construida.
+## Build the Image
 
-## Construcción de la imagen
+This section outlines the steps to build your Docker image using the previously configured and modified files. If you make any changes to the files mentioned earlier, you must rebuild the image.
 
-Esta sección incluye los pasos para construir su imagen a partir de los documentos previamente configurados y modificados. Es importante que, si modifica alguno de los archivos previamente mencionados, deberá volver a construir su imagen. Dado que esta imagen utiliza Gurobi, es necesario primero identificar la plataforma y arquitectura del host. Además, asegúrese de que el archivo `gurobi.lic` se encuentre en la carpeta `asv_docker`.
+it's important to first identify your host's platform and architecture.
 
-Comando para Linux ARM64 (dispositivos ARM, como algunos servidores, Raspberry Pi y Jetson NX):
+##### Build Command for Linux ARM64  
+(Used for ARM-based devices such as some servers, Raspberry Pi, and Jetson NX):
 
 ```bash
 docker builder build --target build --platform linux/arm64 --build-arg TARGETPLATFORM=linux/arm64 --build-arg TARGETARCH=arm64 -f docker/Dockerfile -t my/ros:app .
 ```
-Comando para Linux x64 (PCs, WSL y servidores con arquitectura de 64 bits):
+
+##### Build Command for Linux x64
+
+(Used for standard PCs, WSL, and 64-bit servers):
 
 ```bash
 docker builder build --target build --platform linux --build-arg TARGETPLATFORM=linux --build-arg TARGETARCH=x64 -f docker/Dockerfile -t my/ros:app .
 ```
 
-Este proceso tardará varios minutos.
+This process may take several minutes to complete.
 
-## Ejecuta tu contenedor
+## Run Your Container
 
-Una vez que su imagen esté construida, podrá ejecutar su contenedor Docker mediante comandos de línea. Sin embargo, para facilitar la configuración y despliegue del contenedor, se ha agregado el archivo [docker-compose](docker-compose.yaml), que permitirá desplegar su contenedor y toda su configuración de forma más sencilla.
+Once your image is built, you can run the Docker container using command-line tools. However, to simplify configuration and deployment, this repository includes a [docker-compose.yaml](docker-compose.yaml) file. It helps launch the container along with all its settings in a more streamlined way.
 
-Es importante que modifique su archivo [docker-compose](docker-compose.yaml) en la sección de `devices`, en caso de que no quiera utilizar los módulos del Yellofish (IMU y Xbee). Esto lo podrá hacer comentando o eliminando las siguientes líneas:
+If you're not using the Yellofish modules (IMU and XBee), make sure to edit the `devices` section in the [docker-compose.yaml](docker-compose.yaml) file. You can comment out or remove the following lines:
 
-```docker-compose
+```yaml
 devices:
-      - /dev/xbee_usb
-      - /dev/imu_usb
+  - /dev/xbee_usb
+  - /dev/imu_usb
 ```
 
-Por último, para ejecutar el contenedor, ubicado en el folder `asv_docker`, podrá ejecutar el comando:
+To launch the container, navigate to the `asv_docker` folder and run:
 
 ```bash
 docker-compose up
 ```
 
-Para ingresar a la línea de comandos del contenedor, podrá, en una segunda terminal, ejecutar el siguiente comando. De esta forma, podrá utilizar los comandos de ROS2:
+To access the container’s terminal and run ROS2 commands, open a second terminal and execute:
 
 ```bash
 docker exec -it asv_docker bash
 ```
-
-[//]: # (These are reference links used in the body of this note and get stripped out when the markdown processor does its job. There is no need to format nicely because it shouldn't be seen. Thanks SO - http://stackoverflow.com/questions/4823468/store-comments-in-markdown-syntax)
-    
-   [WLS License]: <https://www.gurobi.com/features/academic-wls-license/>
-   
