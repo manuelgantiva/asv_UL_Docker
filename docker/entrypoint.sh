@@ -12,11 +12,11 @@ then
   echo "Sourced Asv_WS base workspace"
 fi
 
-source ~/.bashrc
-sudo chmod a+rw /dev/xbee_usb
-echo "Enable port Usb xbee"
-sudo chmod a+rw /dev/imu_usb
-echo "Enable port Usb imu"
+# source ~/.bashrc
+# sudo chmod a+rw /dev/xbee_usb
+# echo "Enable port Usb xbee"
+# sudo chmod a+rw /dev/imu_usb
+# echo "Enable port Usb imu"
 
 # Execute the command passed into this entrypoint
 exec "$@"
