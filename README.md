@@ -169,3 +169,9 @@ To access the container’s terminal and run ROS2 commands, open a second termin
 ```bash
 docker exec -it asv_docker bash
 ```
+
+## Citation
+
+If you use content from this repository or refer to the linked chapter, please cite it as:
+
+> Manuel Gantiva, Thalia Morel, Guillermo Bejarano, Pablo Millan, and Federico Peralta. 2025. *From Concept to Control: Development of an Advanced ASV Platform for Testing*. In Press Springer Nature, *Smart Water Quality Monitoring* (pp. xx–xx). Springer Nature.
