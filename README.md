@@ -123,7 +123,7 @@ echo "Enable port Usb imu"
 ```
 With these modifications, your Docker image will be ready for development workflows.
 
-## Build the Image
+## Build the Image Base
 
 This section outlines the steps to build your Docker image using the previously configured and modified files. If you make any changes to the files mentioned earlier, you must rebuild the image.
 
@@ -133,7 +133,7 @@ it's important to first identify your host's platform and architecture.
 (Used for ARM-based devices such as some servers, Raspberry Pi, and Jetson NX):
 
 ```bash
-docker builder build --target build --platform linux/arm64 --build-arg TARGETPLATFORM=linux/arm64 --build-arg TARGETARCH=arm64 -f docker/Dockerfile -t my/ros:app .
+docker builder build --target base --build-arg TARGETARCH=arm64 --network=host -f docker/Dockerfile.base -t asv/loyola:base .
 ```
 
 ##### Build Command for Linux x64
@@ -141,10 +141,16 @@ docker builder build --target build --platform linux/arm64 --build-arg TARGETPLA
 (Used for standard PCs, WSL, and 64-bit servers):
 
 ```bash
-docker builder build --target build --platform linux --build-arg TARGETPLATFORM=linux --build-arg TARGETARCH=x64 -f docker/Dockerfile -t my/ros:app .
+docker builder build --target base --build-arg TARGETARCH=amd64 --network=host -f docker/Dockerfile.base -t asv/loyola:base .
 ```
 
 This process may take several minutes to complete.
+
+### Build image with Code
+
+```bash
+docker builder build --target base --network=host -f docker/Dockerfile.asv -t asv/loyola:v1 .
+```
 
 ## Run Your Container
 

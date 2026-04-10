@@ -20,6 +20,7 @@ SHELL ["/bin/bash", "-c"]
      source /home/aca_ws/install/setup.bash && \
      python3 -m export_plugin_asv_llc && \
      python3 -m export_plugin_asv_pf_mod && \
+     python3 -m export_plugin_asv_igblos_pf && \
      python3 -m export_plugin_asv_pf"
  
  # Build the base Colcon workspace, installing dependencies first.
@@ -45,5 +46,5 @@ SHELL ["/bin/bash", "-c"]
  WORKDIR /bag_files
  
  # launch ros package
-# CMD ["ros2", "launch", "asv_bringup", "real_test.launch.py", "my_id:=3", "rec:=True"]
-CMD ["bash"]
+CMD ["ros2", "launch", "asv_bringup", "iblosmp_pf_test.launch.py", "my_id:=1", "rec:=True"]
+# CMD ["bash"]
