@@ -1,0 +1,169 @@
+#############################
+# Base Image for Asv Loyola #
+#############################
+FROM ros:humble-ros-base as base
+ENV ROS_DISTRO=${ROS_DISTRO}
+SHELL ["/bin/bash", "-c"]
+
+RUN apt-get update && apt-get install vim nano -y 
+
+# Declare build arguments
+ARG TARGETARCH
+
+# Print architecture for debugging
+RUN echo "TARGETARCH is $TARGETARCH"
+
+# ROS fundamentals
+RUN apt-get update && apt-get install -y \
+        build-essential \
+        python3-colcon-common-extensions \
+        python3-pip \
+        python3-pybind11 \
+        python3-pytest-cov \
+        python3-rosdep \
+        python3-rosinstall-generator \
+        python3-vcstool \
+        wget \
+&& rm -rf /var/lib/apt/lists/* \
+&& apt-get clean
+
+# install libraries pip
+RUN pip install digi-xbee
+
+# Install CasAdi
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    gcc g++ gfortran cmake git pkg-config liblapack-dev \
+    python3-dev python3-numpy python3-scipy swig \
+    coinor-libipopt-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /usr/local
+
+COPY ./casadi.repos .
+RUN vcs import < casadi.repos
+RUN rm casadi.repos
+RUN mv CasADI casadi
+
+WORKDIR /usr/local/casadi
+RUN mkdir build && \
+    cd build && \
+    cmake .. \
+      -DWITH_PYTHON=OFF \
+      -DWITH_IPOPT=ON \
+      -DWITH_THREAD=ON \
+      -DWITH_OPENMP=ON \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_INSTALL_PREFIX=/usr/local && \
+    make -j$(nproc) && \
+    make install && \
+    ldconfig
+
+
+# Install Acados
+WORKDIR /usr/local
+
+RUN git clone https://github.com/acados/acados.git
+WORKDIR /usr/local/acados
+RUN git submodule update --recursive --init
+RUN mkdir -p build
+WORKDIR /usr/local/acados/build
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+        cmake .. -DBLASFEO_TARGET=ARMV8A_ARM_CORTEX_A76 -DACADOS_WITH_QPOASES=ON; \
+    else \
+        cmake .. -DACADOS_WITH_QPOASES=ON; \
+    fi
+RUN make install -j4
+
+RUN pip install -e /usr/local/acados/interfaces/acados_template
+RUN pip3 install --upgrade scipy
+ENV LD_LIBRARY_PATH=/usr/local/acados/lib:$LD_LIBRARY_PATH
+RUN sudo apt-get update && sudo apt-get install -y libopenblas-dev
+
+RUN mkdir -p /usr/local/acados/bin
+
+# Download the correct binary based on architecture
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+        wget -q https://github.com/acados/tera_renderer/releases/download/v0.2.0/t_renderer-v0.2.0-linux-arm64 -O /usr/local/acados/bin/t_renderer; \
+    else \
+        wget -q https://github.com/acados/tera_renderer/releases/download/v0.2.0/t_renderer-v0.2.0-linux-amd64 -O /usr/local/acados/bin/t_renderer; \
+    fi
+RUN chmod +x /usr/local/acados/bin/t_renderer
+ENV ACADOS_SOURCE_DIR=/usr/local/acados
+
+RUN echo 'export LD_LIBRARY_PATH=/usr/local/acados/lib:$LD_LIBRARY_PATH' >> ~/.bashrc
+RUN echo 'export ACADOS_SOURCE_DIR="/usr/local/acados"' >> ~/.bashrc
+
+# Ejecutar el demo Acados
+# RUN python3 /usr/local/acados/examples/acados_python/getting_started/minimal_example_ocp.py
+
+# Crear workspace
+WORKDIR /home/aca_ws
+# Clonar y configurar en capas separadas para mejor cache
+RUN mkdir -p src
+RUN cd src && git clone https://github.com/ICube-Robotics/acados_solver_ros2.git
+
+# Configurar entorno ROS2
+ENV ROS_DISTRO=humble
+ENV ROS_PYTHON_VERSION=3
+
+RUN cd src && \
+    source /opt/ros/humble/setup.bash && \
+    vcs import . < acados_solver_ros2/acados_solver_ros2.repos
+
+WORKDIR /home/aca_ws
+COPY acados_vendor_cmake /home/acados_vendor_cmake
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+        cp /home/acados_vendor_cmake/CMakeLists_arm64.txt /home/aca_ws/src/acados_vendor_ros2/CMakeLists.txt; \
+    else \
+        cp /home/acados_vendor_cmake/CMakeLists_amd64.txt /home/aca_ws/src/acados_vendor_ros2/CMakeLists.txt; \
+    fi
+RUN rm -rf /home/acados_vendor_cmake
+
+
+RUN source /opt/ros/${ROS_DISTRO}/setup.bash \
+  && apt-get update -y \
+  && rosdep install --from-paths src --ignore-src --rosdistro ${ROS_DISTRO} -y \
+  && pip3 install future-fstrings \
+  # && rm -rf /home/aca_ws/src/acados_solver_ros2/acados_solver_plugins_example \
+  && colcon build --cmake-args -DBUILD_TESTING=OFF\
+  && colcon build --cmake-args -DBUILD_TESTING=OFF
+
+
+# Ejecutar el demo acados ws con el entorno ROS2 cargado, Para que funciona comenta el rm examples
+# WORKDIR /home/aca_ws/src/acados_solver_ros2/acados_solver_plugins_example/script
+# RUN /bin/bash -c "source /opt/ros/humble/setup.bash && \
+#     source /home/aca_ws/install/setup.bash && \
+#     python3 -m demo_export_plugin_to_custom_pkg"
+# WORKDIR /home/aca_ws
+# RUN source /opt/ros/${ROS_DISTRO}/setup.bash \
+#   && colcon build --cmake-args -DBUILD_TESTING=OFF\
+#   && colcon build --cmake-args -DBUILD_TESTING=OFF
+
+ # Use Cyclone DDS as middleware
+RUN apt-get update && apt-get install -y --no-install-recommends \
+ ros-${ROS_DISTRO}-rmw-cyclonedds-cpp
+ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+
+# Install mavros and other packages mavlink
+RUN apt-get update -y
+RUN sudo apt-get install -y ros-${ROS_DISTRO}-mavros ros-${ROS_DISTRO}-mavros-extras ros-${ROS_DISTRO}-mavros-msgs
+RUN wget https://raw.githubusercontent.com/mavlink/mavros/master/mavros/scripts/install_geographiclib_datasets.sh
+RUN sudo bash ./install_geographiclib_datasets.sh 
+ 
+RUN sudo apt-get install -y ros-${ROS_DISTRO}-xacro
+
+ WORKDIR /
+
+ RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+ RUN echo "source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash" >> ~/.bashrc
+ RUN echo "source /usr/share/colcon_cd/function/colcon_cd.sh" >> ~/.bashrc
+ RUN echo "source /home/aca_ws/install/setup.bash" >> ~/.bashrc
+
+
+ COPY ./docker/entrypoint.sh /
+ ENTRYPOINT [ "/entrypoint.sh" ]
+
+# launch ros package
+# CMD ["ros2", "run", "acados_solver_plugins_example", "test_mock_plugin"]
+CMD ["bash"]

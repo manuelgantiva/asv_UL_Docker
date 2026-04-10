@@ -6,13 +6,21 @@ source /opt/ros/${ROS_DISTRO}/setup.bash
 echo "Sourced ROS 2 ${ROS_DISTRO}"
 
 # Source the base workspace, if built
-if [ -f /asv_ws/install/setup.bash ]
+if [ -f /home/asv_ws/install/setup.bash ]
 then
-  source /asv_ws/install/setup.bash
+  source /home/asv_ws/install/setup.bash
   echo "Sourced Asv_WS base workspace"
 fi
 
-# source ~/.bashrc
+# Source the base workspace, if built
+if [ -f /home/aca_ws/install/setup.bash ]
+then
+  source /home/aca_ws/install/setup.bash
+  echo "Sourced ACADOS_WS base workspace"
+fi
+
+source ~/.bashrc
+echo "Sourced bashrc"
 # sudo chmod a+rw /dev/xbee_usb
 # echo "Enable port Usb xbee"
 # sudo chmod a+rw /dev/imu_usb

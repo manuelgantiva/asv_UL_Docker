@@ -1,0 +1,49 @@
+################################
+# Compile Image for Asv Loyola #
+################################
+FROM asv/loyola:base as base
+ENV ROS_DISTRO=${ROS_DISTRO}
+SHELL ["/bin/bash", "-c"]
+ 
+ # Create Colcon workspace with external dependencies
+ WORKDIR /
+ RUN mkdir -p /bag_files
+ RUN mkdir -p /home/asv_ws
+ WORKDIR /home/asv_ws
+ COPY ./dependencies.repos .
+ RUN vcs import < dependencies.repos
+ RUN mv ASV_Loyola_US_low_level src
+ RUN rm dependencies.repos
+
+ WORKDIR /home/asv_ws/src/asv_acados/script
+ RUN /bin/bash -c "source /opt/ros/humble/setup.bash && \
+     source /home/aca_ws/install/setup.bash && \
+     python3 -m export_plugin_asv_llc && \
+     python3 -m export_plugin_asv_pf_mod && \
+     python3 -m export_plugin_asv_pf"
+ 
+ # Build the base Colcon workspace, installing dependencies first.
+ WORKDIR /home/asv_ws
+ RUN chmod +x /home/asv_ws/src/asv_comunication/scripts/transceiver_xbee.py
+ 
+ RUN source /opt/ros/${ROS_DISTRO}/setup.bash \
+  && source /home/aca_ws/install/setup.bash  \
+  && apt-get update -y \
+  # Deleta simulator to test in jetson
+  && rm -rf /home/asv_ws/src/asv_simulator/ \   
+  && rosdep install --from-paths src --ignore-src --rosdistro ${ROS_DISTRO} -y \
+  && colcon build --executor sequential \
+  && colcon build --executor sequential
+ 
+ RUN echo "source /home/asv_ws/install/setup.bash" >> ~/.bashrc
+ 
+ # Set up the entrypoint
+ WORKDIR /
+ COPY ./docker/entrypoint.sh /
+ ENTRYPOINT [ "/entrypoint.sh" ]
+ 
+ WORKDIR /bag_files
+ 
+ # launch ros package
+# CMD ["ros2", "launch", "asv_bringup", "real_test.launch.py", "my_id:=3", "rec:=True"]
+CMD ["bash"]

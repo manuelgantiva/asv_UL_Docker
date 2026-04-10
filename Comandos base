@@ -1,30 +1,19 @@
-docker build -f docker/Dockerfile -t my/ros:app .
+docker builder build --target base --build-arg TARGETARCH=amd64 --network=host -f docker/Dockerfile.base -t asv/loyola:base .
 
-docker builder build --target build --platform linux/arm64 --build-arg TARGETPLATFORM=linux/arm64 --build-arg TARGETARCH=arm64 -f docker/Dockerfile -t my/ros:app .
-docker builder build --target build --platform linux --build-arg TARGETPLATFORM=linux --build-arg TARGETARCH=x64 -f docker/Dockerfile -t my/ros:app .
+docker builder build --target base --network=host -f docker/Dockerfile.asv -t asv/loyola:v1 .
 
-docker builder build --target base --platform linux/arm64 --build-arg TARGETPLATFORM=linux/arm64 --build-arg TARGETARCH=arm64 -f docker/Dockerfile -t my/ros:base .
-docker builder build --target base --platform linux --build-arg TARGETPLATFORM=linux --build-arg TARGETARCH=x64 -f docker/Dockerfile -t my/ros:base .
+docker builder build --target base -f docker/Dockerfile -t asv/loyola:v1 .
 
-docker rmi my/ros:app 
+docker run -it --name my_ros --net=host --device=/dev/ttyUSB0 --rm asv/loyola:v1
 
-docker builder build --target base -f docker/Dockerfile -t my/ros:base .
+docker run -it --name my_ros --net=host --rm asv/loyola:v1
 
-
-docker run -it --name my_ros --net=host --device=/dev/ttyUSB0 --rm my/ros:app
-
-docker run -it --name my_ros --net=host --rm my/ros:app
-
-docker builder build --target build  -f docker/Dockerfile -t my/ros:app .
+docker builder build --target build  -f docker/Dockerfile -t asv/loyola:v1.
 
 ros2 run mavros mavros_node --ros-args --param fcu_url:=udp://:14550@
 
 
-docker-compose up
-
-docker container exec -it my_ros bash
-
-docker run -it -v ~/images/Docker_asv/bag_files:/bag_files:rw --name my_ros --net=host --rm my/ros:app2 bash
+docker run -it -v ~/images/Docker_asv/bag_files:/bag_files:rw --name my_ros --net=host --rm asv/loyola:v1 bash
 
 
 Comando para Dispositivos ttyUSB
